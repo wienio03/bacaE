@@ -18,18 +18,15 @@ struct place{
 struct shelf{
     place miejsca[128];
     int shelfLength;
-    long long int shelfStock;
 };
 struct rack{
     shelf polki[128];
     int rackLength;
-    long long int rackStock;
 };
 struct warehouse{
     rack regaly[128];
     shelf handyShelf;
     int warehouseLength;
-    long long int warehouseStock;
 };
 struct depot{
     warehouse magazyny[128];
@@ -49,6 +46,7 @@ void Set_AP(int a, int b, int c, int d, depot& mainDepot){
 
     }
     for(int j=d; j<128; j++){
+        mainDepot.depotStock-=mainDepot.magazyny[a].regaly[b].polki[c].miejsca[j].towar;
         mainDepot.magazyny[a].regaly[b].polki[c].miejsca[j].towar=0;
         mainDepot.magazyny[a].regaly[b].polki[c].miejsca[j].etykieta[0]='\0';
         mainDepot.magazyny[a].regaly[b].polki[c].miejsca[j].etykieta[1]='\0';
@@ -63,7 +61,7 @@ void Set_APHR(int a, int b, depot& mainDepot){
         mainDepot.handyRack.polki[a].miejsca[b].etykieta[1]='\0';
     }
     for(int j=b; j<128; j++){
-        mainDepot.handyRack.polki[a].shelfLength=0;
+        mainDepot.depotStock-=mainDepot.handyRack.polki[a].miejsca[b].towar;
         mainDepot.handyRack.polki[a].miejsca[b].towar=0;
         mainDepot.handyRack.polki[a].miejsca[b].etykieta[0]='\0';
         mainDepot.handyRack.polki[a].miejsca[b].etykieta[1]='\0';
@@ -82,6 +80,7 @@ void Set_AS(int a, int b, int c, int d, depot& mainDepot){
     }
     for(int i=c; i<rackLength_before; i++ ){
         for(int j=0; j<128; j++){
+            mainDepot.depotStock-=mainDepot.magazyny[a].regaly[b].polki[i].miejsca[j].towar;
             mainDepot.magazyny[a].regaly[b].polki[i].miejsca[j].towar=0;
             mainDepot.magazyny[a].regaly[b].polki[i].miejsca[j].etykieta[0]='\0';
             mainDepot.magazyny[a].regaly[b].polki[i].miejsca[j].etykieta[1]='\0';
@@ -116,6 +115,7 @@ void Set_AR(int a, int b, int c, int d, depot& mainDepot){
     for(int i=b; i<warehouseLength_before; i++){
         for(int j=0; j<128; j++){
             for(int k=0; k<128; k++){
+                mainDepot.depotStock-=mainDepot.magazyny[a].regaly[i].polki[j].miejsca[k].towar;
                 mainDepot.magazyny[a].regaly[i].polki[j].miejsca[k].towar=0;
                 mainDepot.magazyny[a].regaly[i].polki[j].miejsca[k].etykieta[0]='\0';
                 mainDepot.magazyny[a].regaly[i].polki[j].miejsca[k].etykieta[1]='\0';
@@ -151,12 +151,10 @@ void Set_AW(int a, int b, int c, int d, depot& mainDepot){
         }
     }
     for(int i=a; i<depotLength_before; i++){
-        mainDepot.magazyny[i].warehouseLength=0;
         for(int j=0; j<128; j++){
-            mainDepot.magazyny[i].regaly[j].rackLength=0;
             for(int k=0; k<128; k++){
-                mainDepot.magazyny[i].regaly[j].polki[k].shelfLength=0;
                 for(int l=0; l<128; l++){
+                    mainDepot.depotStock-= mainDepot.magazyny[i].regaly[j].polki[k].miejsca[l].towar;
                     mainDepot.magazyny[i].regaly[j].polki[k].miejsca[l].towar=0;
                     mainDepot.magazyny[i].regaly[j].polki[k].miejsca[k].etykieta[0]='\0';
                     mainDepot.magazyny[i].regaly[j].polki[k].miejsca[k].etykieta[1]='\0';
@@ -186,6 +184,7 @@ void Set_HW(int a, int b, depot& mainDepot){
 
     }
     for(int i=b; i<128; i++){
+        mainDepot.depotStock-=mainDepot.magazyny[a].handyShelf.miejsca[i].towar;
         mainDepot.magazyny[a].handyShelf.miejsca[i].towar=0;
         mainDepot.magazyny[a].handyShelf.miejsca[i].etykieta[0]='\0';
         mainDepot.magazyny[a].handyShelf.miejsca[i].etykieta[1]='\0';
@@ -194,7 +193,7 @@ void Set_HW(int a, int b, depot& mainDepot){
 void Set_HR(int a, int b, depot& mainDepot){
     int handyRack_length_before=mainDepot.handyRack.rackLength;
     mainDepot.handyRack.rackLength=a;
-        for (int i = handyRack_length_before; i < mainDepot.handyRack.rackLength; i++) {
+        for (int i = handyRack_length_before; i < a; i++) {
             mainDepot.handyRack.polki[i].shelfLength = b;
             for (int j = 0; j < b; j++) {
                 mainDepot.handyRack.polki[i].miejsca[j].towar = 0;
@@ -205,6 +204,7 @@ void Set_HR(int a, int b, depot& mainDepot){
 
     for (int i=a; i<128; i++){
         for (int j=0; j<128; j++){
+            mainDepot.depotStock-= mainDepot.handyRack.polki[i].miejsca[j].towar;
             mainDepot.handyRack.polki[i].miejsca[j].towar=0;
             mainDepot.handyRack.polki[i].miejsca[j].etykieta[0]='\0';
             mainDepot.handyRack.polki[i].miejsca[j].etykieta[1]='\0';
@@ -224,14 +224,13 @@ void Set_HR(int a, int b, depot& mainDepot){
 void Set_HS(int a, depot& mainDepot) {
     int depot_handyShelf_length_before = mainDepot.depot_handyShelf.shelfLength;
     mainDepot.depot_handyShelf.shelfLength = a;
-    if (depot_handyShelf_length_before < a) {
         for (int i = depot_handyShelf_length_before; i < a; i++) {
             mainDepot.depot_handyShelf.miejsca[i].towar = 0;
             mainDepot.depot_handyShelf.miejsca[i].etykieta[0] = '\0';
             mainDepot.depot_handyShelf.miejsca[i].etykieta[1] = '\0';
         }
-    }
     for (int i = a; i < 128; i++) {
+        mainDepot.depotStock-=mainDepot.depot_handyShelf.miejsca[i].towar;
         mainDepot.depot_handyShelf.miejsca[i].towar = 0;
         mainDepot.depot_handyShelf.miejsca[i].etykieta[0] = '\0';
         mainDepot.depot_handyShelf.miejsca[i].etykieta[1] = '\0';
@@ -242,7 +241,7 @@ int main() {
     int wb, rb, sb, Pe, we, re, se, Se, Re, We;
     int w, r, s, p;
     int R, S, W, P;
-    unsigned int A;
+    int A;
     char input[40];
     do {
         cin >> input;
@@ -268,20 +267,24 @@ int main() {
                             sklad.handyRack.polki[k].shelfLength = P;
                             for (int l = 0; l < P; l++) {
                                 if (i == 0 & j == 0) {
+                                    sklad.depotStock+=A;
                                     sklad.handyRack.polki[k].miejsca[l].towar = A;
                                     sklad.handyRack.polki[k].miejsca[l].etykieta[0] = '\0';
                                     sklad.handyRack.polki[k].miejsca[l].etykieta[1] = '\0';
                                 }
                                 if (i == 0 && j == 0 & k == 0) {
+                                    sklad.depotStock+=A;
                                     sklad.depot_handyShelf.miejsca[l].towar = A;
                                     sklad.depot_handyShelf.miejsca[l].etykieta[0] = '\0';
                                     sklad.depot_handyShelf.miejsca[l].etykieta[1] = '\0';
                                 }
                                 if (j == 0 & k == 0) {
+                                    sklad.depotStock+=A;
                                     sklad.magazyny[i].handyShelf.miejsca[l].towar = A;
                                     sklad.magazyny[i].handyShelf.miejsca[l].etykieta[0] = '\0';
                                     sklad.magazyny[i].handyShelf.miejsca[l].etykieta[1] = '\0';
                                 }
+                                sklad.depotStock+=A;
                                 sklad.magazyny[i].regaly[j].polki[k].miejsca[l].towar = A;
                                 sklad.magazyny[i].regaly[j].polki[k].miejsca[l].etykieta[0] = '\0';
                                 sklad.magazyny[i].regaly[j].polki[k].miejsca[l].etykieta[1] = '\0';
@@ -298,20 +301,24 @@ int main() {
                             sklad.magazyny[i].regaly[j].polki[k].shelfLength = 0;
                             for (int l = P; l < 128; l++) {
                                 if (j == R && k == S) {
+                                    sklad.depotStock-= sklad.magazyny[i].handyShelf.miejsca[l].towar;
                                     sklad.magazyny[i].handyShelf.miejsca[l].towar = 0;
                                     sklad.magazyny[i].handyShelf.miejsca[l].etykieta[0] = '\0';
                                     sklad.magazyny[i].handyShelf.miejsca[l].etykieta[1] = '\0';
                                 }
                                 if (i == W && j == R) {
+                                    sklad.depotStock-=sklad.handyRack.polki[k].miejsca[l].towar;
                                     sklad.handyRack.polki[k].miejsca[l].towar = 0;
                                     sklad.handyRack.polki[k].miejsca[l].etykieta[0] = '\0';
                                     sklad.handyRack.polki[k].miejsca[l].etykieta[1] = '\0';
                                 }
                                 if (i == W && j == R && k == S) {
+                                    sklad.depotStock-=sklad.depot_handyShelf.miejsca[l].towar;
                                     sklad.depot_handyShelf.miejsca[l].towar = 0;
                                     sklad.depot_handyShelf.miejsca[l].etykieta[0] = '\0';
                                     sklad.depot_handyShelf.miejsca[l].etykieta[1] = '\0';
                                 }
+                                sklad.depotStock-=sklad.magazyny[i].regaly[j].polki[k].miejsca[l].towar;
                                 sklad.magazyny[i].regaly[j].polki[k].miejsca[l].towar = 0;
                                 sklad.magazyny[i].regaly[j].polki[k].miejsca[l].etykieta[0] = '\0';
                                 sklad.magazyny[i].regaly[j].polki[k].miejsca[l].etykieta[1] = '\0';
@@ -375,6 +382,7 @@ int main() {
                 else if (A + sklad.magazyny[w].regaly[r].polki[s].miejsca[p].towar > 65535)
                     A = 65535 - sklad.magazyny[w].regaly[r].polki[s].miejsca[p].towar;
                 sklad.magazyny[w].regaly[r].polki[s].miejsca[p].towar += A;
+                sklad.depotStock+=A;
             }
         }
         if (porownajNapisy(input, "PUT-H")) {
@@ -386,6 +394,7 @@ int main() {
                     A = 65535 - sklad.magazyny[w].handyShelf.miejsca[p].towar;
                 else if (A > 65535)A = 65535;
                 sklad.magazyny[w].handyShelf.miejsca[p].towar += A;
+                sklad.depotStock+=A;
             }
         }
         if (porownajNapisy(input, "PUT-R")) {
@@ -398,6 +407,7 @@ int main() {
                 else if (A + sklad.handyRack.polki[s].miejsca[p].towar > 65535)
                     A = 65535 - sklad.handyRack.polki[s].miejsca[p].towar;
                 sklad.handyRack.polki[s].miejsca[p].towar += A;
+                sklad.depotStock+=A;
             }
         }
 
@@ -410,6 +420,7 @@ int main() {
                 else if (A + sklad.depot_handyShelf.miejsca[p].towar > 65535)
                     A = 65535 - sklad.depot_handyShelf.miejsca[p].towar;
                 sklad.depot_handyShelf.miejsca[p].towar += A;
+                sklad.depotStock+=A;
             }
         }
         //POP
@@ -426,6 +437,7 @@ int main() {
                 if (sklad.magazyny[w].regaly[r].polki[s].miejsca[p].towar < A)
                     A = sklad.magazyny[w].regaly[r].polki[s].miejsca[p].towar;
                 sklad.magazyny[w].regaly[r].polki[s].miejsca[p].towar -= A;
+                sklad.depotStock-=A;
             }
         }
         if (porownajNapisy(input, "POP-H")) {
@@ -435,6 +447,7 @@ int main() {
             else {
                 if (sklad.magazyny[w].handyShelf.miejsca[p].towar < A)A = sklad.magazyny[w].handyShelf.miejsca[p].towar;
                 sklad.magazyny[w].handyShelf.miejsca[p].towar -= A;
+                sklad.depotStock-=A;
             }
         }
         if (porownajNapisy(input, "POP-R")) {
@@ -445,6 +458,7 @@ int main() {
             else {
                 if (sklad.handyRack.polki[s].miejsca[p].towar < A)A = sklad.handyRack.polki[s].miejsca[p].towar;
                 sklad.handyRack.polki[s].miejsca[p].towar -= A;
+                sklad.depotStock-=A;
             }
         }
         if (porownajNapisy(input, "POP-S")) {
@@ -454,6 +468,7 @@ int main() {
             else {
                 if (sklad.depot_handyShelf.miejsca[p].towar < A)A = sklad.depot_handyShelf.miejsca[p].towar;
                 sklad.depot_handyShelf.miejsca[p].towar -= A;
+                sklad.depotStock-=A;
             }
         }
         //ETYKIETY
@@ -571,54 +586,7 @@ int main() {
         }
         //GETY WYSWIETLANIE
         if (porownajNapisy(input, "GET-E")) {
-            long long int sumaTowaru = 0;
-            if (sklad.depotLength == 0) {
-                sumaTowaru = 0;
-                for (int i = 0; i < sklad.depot_handyShelf.shelfLength; i++) {
-                    sumaTowaru += sklad.depot_handyShelf.miejsca[i].towar;
-                }
-                for (int i=0; i < sklad.handyRack.rackLength; i++){
-                    for(int j=0; j<sklad.handyRack.polki[i].shelfLength; j++){
-                        sumaTowaru += sklad.handyRack.polki[i].miejsca[j].towar;
-                    }
-                }
-            }
-            else if (sklad.depotLength == 1) {
-                for (int j = 0; j < sklad.magazyny[0].warehouseLength; j++) {
-                    for (int k = 0; k < sklad.magazyny[0].regaly[j].rackLength; k++) {
-                        for (int l = 0; l < sklad.magazyny[0].regaly[j].polki[k].shelfLength; l++) {
-                            if (sklad.magazyny[0].warehouseLength != 0 && sklad.magazyny[0].regaly[j].rackLength != 0 &&
-                                sklad.magazyny[0].regaly[j].polki[k].shelfLength != 0)
-                                sumaTowaru += sklad.magazyny[0].regaly[j].polki[k].miejsca[l].towar;
-                            if (j == 0)sumaTowaru += sklad.handyRack.polki[k].miejsca[l].towar;
-                            if (j == 0 && k == 0)sumaTowaru += sklad.depot_handyShelf.miejsca[l].towar;
-                            if (j == 0 && k == 0)sumaTowaru += sklad.magazyny[0].handyShelf.miejsca[l].towar;
-                        }
-                    }
-                }
-            }
-            else {
-            for (int i = 0; i < sklad.depotLength; i++) {
-                for (int j = 0; j < sklad.magazyny[i].warehouseLength; j++) {
-                    for (int k = 0; k < sklad.magazyny[i].regaly[j].rackLength; k++) {
-                        for (int l = 0; l < sklad.magazyny[i].regaly[j].polki[k].shelfLength; l++) {
-                            if (sklad.magazyny[i].warehouseLength != 0 && sklad.magazyny[i].regaly[j].rackLength != 0 &&
-                                sklad.magazyny[i].regaly[j].polki[k].shelfLength != 0)
-                                sumaTowaru += sklad.magazyny[i].regaly[j].polki[k].miejsca[l].towar;
-                            if (i == 0 && j == 0)sumaTowaru += sklad.handyRack.polki[k].miejsca[l].towar;
-                            if ((i == 0 && j == 0) && k == 0)sumaTowaru += sklad.depot_handyShelf.miejsca[l].towar;
-                            if (j == 0 && k == 0)sumaTowaru += sklad.magazyny[i].handyShelf.miejsca[l].towar;
-                        }
-                    }
-                }
-            }
-            for (int i=0; i<sklad.depotLength; i++){
-                for(int j=0; j<sklad.depotLength; j++) {
-                    if (sklad.magazyny[i].warehouseLength==0) sumaTowaru+=sklad.magazyny[i].handyShelf.miejsca[j].towar;
-                }
-            }
-            }
-            cout << sumaTowaru << endl;
+           cout << sklad.depotStock << endl;
         }
         if (porownajNapisy(input, "GET-W")) {
             cin >> w;
